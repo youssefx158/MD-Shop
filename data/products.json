@@ -1,0 +1,55 @@
+[
+  {
+    "id": "P-0V-o88ET",
+    "name": "تيشرت لوفي عمك",
+    "description": "تيشرت مصنوع من القطن الخام وضد الوبر واسطوري جدا وعاملي واشتريه يا رب تكسب",
+    "basePrice": 500,
+    "salePrice": 450,
+    "sizes": [
+      {
+        "label": "M"
+      },
+      {
+        "label": "L"
+      },
+      {
+        "label": "XL"
+      },
+      {
+        "label": "XXL"
+      }
+    ],
+    "visibility": "published",
+    "cardImage": "/uploads/P-0V-o88ET-card-1776041644679-9227c434.jpg",
+    "detailImages": [
+      "/uploads/P-0V-o88ET-d1-1776041644681-c90666ab.png"
+    ],
+    "createdAt": "2026-04-13T00:54:04.678Z",
+    "updatedAt": "2026-04-13T00:54:04.678Z"
+  },
+  {
+    "id": "P-zdSfJdL-",
+    "name": "تيشرت عاملي",
+    "description": "تيشرت اسطوري",
+    "basePrice": 450,
+    "salePrice": 400,
+    "sizes": [
+      {
+        "label": "M"
+      },
+      {
+        "label": "XL"
+      },
+      {
+        "label": "S"
+      }
+    ],
+    "visibility": "published",
+    "cardImage": "/uploads/P-zdSfJdL--card-1776040643536-1e65c0a6.jpg",
+    "detailImages": [
+      "/uploads/P-zdSfJdL--d1-1776040643538-17dc24f1.jpg"
+    ],
+    "createdAt": "2026-04-13T00:37:23.536Z",
+    "updatedAt": "2026-04-13T00:43:45.860Z"
+  }
+]

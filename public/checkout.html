@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>تأكيد الطلب | MD Streetwear</title>
+    <link rel="stylesheet" href="/assets/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="container topbar-inner">
+        <a class="brand" href="/">
+          <div>
+            <div class="logo">MD</div>
+            <small>STREETWEAR</small>
+          </div>
+        </a>
+        <div class="actions">
+          <a class="pill active" href="/">العودة للمتجر</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="container">
+      <section class="hero">
+        <h1>تأكيد الطلب</h1>
+        <p>راجع طلبك وأدخل بيانات الشحن لإتمام الشراء.</p>
+      </section>
+
+      <section class="checkout">
+        <div class="panel">
+          <div style="font-weight: 900; margin-bottom: 10px">ملخص الطلب</div>
+          <div id="summaryEmpty" class="muted-box" style="display: none">السلة فارغة.</div>
+          <div id="summaryList"></div>
+          <div class="cart-row" style="margin-top: 12px">
+            <div class="mini">الإجمالي</div>
+            <div id="summaryTotal" class="price sale">0</div>
+          </div>
+        </div>
+
+        <form id="form" class="panel" novalidate>
+          <div style="font-weight: 900; margin-bottom: 10px">بيانات العميل</div>
+
+          <div class="field" id="fName">
+            <label for="name">الاسم الثلاثي</label>
+            <input id="name" autocomplete="name" placeholder="مثال: يوسف محمد أحمد" />
+            <div class="err">أدخل اسمك الثلاثي</div>
+          </div>
+
+          <div class="grid2">
+            <div class="field" id="fPhone">
+              <label for="phone">رقم الهاتف الأساسي</label>
+              <input id="phone" inputmode="numeric" autocomplete="tel" placeholder="01XXXXXXXXX" />
+              <div class="err">أدخل رقم هاتف مصري صحيح</div>
+            </div>
+            <div class="field" id="fPhone2">
+              <label for="phone2">رقم احتياطي (اختياري)</label>
+              <input id="phone2" inputmode="numeric" autocomplete="tel" placeholder="01XXXXXXXXX" />
+              <div class="err">رقم غير صحيح</div>
+            </div>
+          </div>
+
+          <div class="grid3">
+            <div class="field" id="fGov">
+              <label for="gov">المحافظة</label>
+              <select id="gov"></select>
+              <div class="err">اختر المحافظة</div>
+            </div>
+            <div class="field" id="fArea">
+              <label for="area">المنطقة</label>
+              <input id="area" placeholder="مثال: مدينة نصر" />
+              <div class="err">أدخل المنطقة</div>
+            </div>
+            <div class="field" id="fBuilding">
+              <label for="building">رقم/اسم المبنى</label>
+              <input id="building" placeholder="مثال: 12 أو برج كذا" />
+              <div class="err">أدخل رقم/اسم المبنى</div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="address">العنوان التفصيلي (اختياري)</label>
+            <textarea id="address" placeholder="تفاصيل إضافية تساعد في الوصول"></textarea>
+          </div>
+
+          <button id="submitBtn" class="btn" type="submit">✓ تأكيد الطلب</button>
+        </form>
+      </section>
+    </main>
+
+    <div id="confirm" class="confirm-overlay" aria-label="Confirm animation">
+      <div id="swirl" class="swirl"></div>
+      <div id="okCard" class="ok-card" style="opacity: 0; transform: translateY(10px)">
+        <div class="ok-circle" aria-hidden="true">
+          <svg width="62" height="46" viewBox="0 0 52 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              id="checkPath"
+              d="M3 19.5L19 35L49 3"
+              stroke="white"
+              stroke-width="6"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              pathLength="1"
+              style="stroke-dasharray: 1; stroke-dashoffset: 1"
+            />
+          </svg>
+        </div>
+        <h2>تم تأكيد طلبك بنجاح</h2>
+        <p>رقم طلبك: <span id="okId" style="color: var(--gold); font-weight: 900"></span></p>
+        <p>احتفظ بهذا الرقم لتتبع طلبك</p>
+        <button id="copyBtn" type="button" class="copy-btn">📋 نسخ رقم الطلب</button>
+        <div class="ok-actions">
+          <a class="btn" href="/">العودة للمتجر</a>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="/assets/checkout.js"></script>
+  </body>
+</html>
