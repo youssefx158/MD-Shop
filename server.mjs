@@ -228,6 +228,14 @@ async function handleApi(req, res, url, method) {
     await writeJson(ORDERS_FILE, orders);
     return sendJson(res, 200, { ok: true });
   }
+  if (adminOrderMatch && method === "DELETE") {
+    const id = adminOrderMatch[1];
+    const orders = await readOrders();
+    const next = orders.filter((o) => o.id !== id);
+    if (next.length === orders.length) return sendJson(res, 404, { ok: false, message: "غير موجود" });
+    await writeJson(ORDERS_FILE, next);
+    return sendJson(res, 200, { ok: true });
+  }
 
   if (url.pathname === "/api/admin/stats" && method === "GET") {
     const [products, orders] = await Promise.all([readProducts(), readOrders()]);

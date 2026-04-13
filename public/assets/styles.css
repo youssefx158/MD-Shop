@@ -294,15 +294,20 @@ a {
 
 .chip {
   position: absolute;
-  top: 12px;
-  left: 12px;
-  padding: 8px 10px;
-  border-radius: 999px;
-  font-size: 12px;
+  top: 14px;
+  left: 14px;
+  width: calc(25% - 14px);
+  min-width: 84px;
+  max-width: 108px;
+  padding: 9px 8px;
+  text-align: center;
+  border-radius: 12px;
+  font-size: 13px;
   font-weight: 900;
-  background: rgba(34, 197, 94, 0.16);
-  border: 1px solid rgba(34, 197, 94, 0.45);
-  color: #c9ffd8;
+  background: linear-gradient(180deg, rgba(34, 197, 94, 0.95), rgba(22, 163, 74, 0.92));
+  border: 1px solid rgba(187, 247, 208, 0.28);
+  color: #f4fff7;
+  box-shadow: 0 10px 24px rgba(34, 197, 94, 0.24);
 }
 
 .muted-box {

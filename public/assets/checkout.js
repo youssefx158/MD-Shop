@@ -20,29 +20,23 @@ const copyBtn = qs("#copyBtn");
 boot();
 
 function boot() {
-  govSel.innerHTML = `<option value="">اختر</option>` + GOVERNORATES.map((g) => `<option value="${escapeAttr(g)}">${escapeHtml(g)}</option>`).join("");
+  govSel.innerHTML =
+    `<option value="">اختر</option>` +
+    GOVERNORATES.map((g) => `<option value="${escapeAttr(g)}">${escapeHtml(g)}</option>`).join("");
 
   renderSummary().catch(() => {});
   form.addEventListener("submit", onSubmit);
 
-  copyBtn.addEventListener("click", () => {
+  copyBtn?.addEventListener("click", async () => {
     const orderId = okId.textContent.trim();
     if (!orderId) return;
-    navigator.clipboard.writeText(orderId).then(() => {
-      copyBtn.textContent = "✓ تم النسخ!";
-      copyBtn.classList.add("copied");
-      setTimeout(() => {
-        copyBtn.textContent = "📋 نسخ رقم الطلب";
-        copyBtn.classList.remove("copied");
-      }, 2000);
-    }).catch(() => {
-      copyBtn.textContent = "✓ تم النسخ!";
-      copyBtn.classList.add("copied");
-      setTimeout(() => {
-        copyBtn.textContent = "📋 نسخ رقم الطلب";
-        copyBtn.classList.remove("copied");
-      }, 2000);
-    });
+    const copied = await copyText(orderId);
+    copyBtn.textContent = copied ? "تم النسخ" : "انسخ يدويًا";
+    copyBtn.classList.add("copied");
+    setTimeout(() => {
+      copyBtn.textContent = "نسخ رقم الطلب";
+      copyBtn.classList.remove("copied");
+    }, 1800);
   });
 }
 
@@ -61,19 +55,19 @@ async function renderSummary() {
   }
   const byId = new Map(products.map((p) => [p.id, p]));
 
-  for (const it of cart) {
-    const p = byId.get(it.productId);
-    const unit = p ? (p.salePrice || p.basePrice || 0) : 0;
-    const line = unit * (it.qty || 1);
+  for (const item of cart) {
+    const product = byId.get(item.productId);
+    const unit = product ? product.salePrice || product.basePrice || 0 : 0;
+    const line = unit * (item.qty || 1);
     total += line;
 
     const row = document.createElement("div");
     row.className = "cart-item";
     row.innerHTML = `
-      ${p?.cardImage ? `<img alt="" src="${escapeAttr(p.cardImage)}" />` : `<div></div>`}
+      ${product?.cardImage ? `<img alt="" src="${escapeAttr(product.cardImage)}" />` : `<div></div>`}
       <div>
-        <h4>${escapeHtml(p?.name || "منتج")}</h4>
-        <div class="meta">المقاس: ${escapeHtml(it.size)} • الكمية: ${it.qty || 1}</div>
+        <h4>${escapeHtml(product?.name || "منتج")}</h4>
+        <div class="meta">المقاس: ${escapeHtml(item.size)} • الكمية: ${item.qty || 1}</div>
       </div>
     `;
     summaryList.appendChild(row);
@@ -102,8 +96,7 @@ async function onSubmit(e) {
     address: qs("#address").value.trim(),
   };
 
-  const ok = validate(customer);
-  if (!ok) return;
+  if (!validate(customer)) return;
 
   submitBtn.disabled = true;
   submitBtn.textContent = "جاري التأكيد...";
@@ -118,29 +111,29 @@ async function onSubmit(e) {
     alert(err.message || "حصل خطأ");
   } finally {
     submitBtn.disabled = false;
-    submitBtn.textContent = "✓ تأكيد الطلب";
+    submitBtn.textContent = "تأكيد الطلب";
   }
 }
 
-function validate(c) {
-  if (c.name.split(/\s+/).filter(Boolean).length < 3) return markBad("fName");
-  if (!/^01[0-9]{9}$/.test(c.phone)) return markBad("fPhone");
-  if (c.phone2 && !/^01[0-9]{9}$/.test(c.phone2)) return markBad("fPhone2");
-  if (!c.governorate) return markBad("fGov");
-  if (!c.area) return markBad("fArea");
-  if (!c.building) return markBad("fBuilding");
+function validate(customer) {
+  if (customer.name.split(/\s+/).filter(Boolean).length < 3) return markBad("fName");
+  if (!/^01[0-9]{9}$/.test(customer.phone)) return markBad("fPhone");
+  if (customer.phone2 && !/^01[0-9]{9}$/.test(customer.phone2)) return markBad("fPhone2");
+  if (!customer.governorate) return markBad("fGov");
+  if (!customer.area) return markBad("fArea");
+  if (!customer.building) return markBad("fBuilding");
   return true;
 }
 
 function markBad(id, msg) {
-  const el = qs(`#${id}`);
-  if (!el) return false;
-  el.classList.add("bad");
+  const field = qs(`#${id}`);
+  if (!field) return false;
+  field.classList.add("bad");
   if (msg) {
-    const err = qs(".err", el);
+    const err = qs(".err", field);
     if (err) err.textContent = msg;
   }
-  el.scrollIntoView({ behavior: "smooth", block: "center" });
+  field.scrollIntoView({ behavior: "smooth", block: "center" });
   return false;
 }
 
@@ -152,37 +145,40 @@ async function playConfirm(orderId) {
   okId.textContent = orderId;
   confirmOverlay.classList.add("show");
 
-  // Stage 1: swirl particles
   swirl.innerHTML = "";
   const particles = [];
   const count = 36;
   for (let i = 0; i < count; i++) {
-    const p = document.createElement("div");
-    p.className = "particle";
-    swirl.appendChild(p);
-    particles.push(p);
+    const particle = document.createElement("div");
+    particle.className = "particle";
+    swirl.appendChild(particle);
+    particles.push(particle);
   }
 
   const start = performance.now();
-  const dur = 1400;
+  const duration = 1400;
   await animateFrame((now) => {
-    const t = Math.min(1, (now - start) / dur);
+    const t = Math.min(1, (now - start) / duration);
     const ease = t * t * (3 - 2 * t);
-    const r = 140 - ease * 110;
+    const radius = 140 - ease * 110;
     const spin = ease * 10;
     for (let i = 0; i < particles.length; i++) {
-      const a = (i / particles.length) * Math.PI * 2 + spin;
-      const x = Math.cos(a) * r;
-      const y = Math.sin(a) * r;
-      const s = 0.6 + (1 - ease) * 0.6;
-      particles[i].style.transform = `translate(${x}px, ${y}px) scale(${s})`;
+      const angle = (i / particles.length) * Math.PI * 2 + spin;
+      const x = Math.cos(angle) * radius;
+      const y = Math.sin(angle) * radius;
+      const scale = 0.6 + (1 - ease) * 0.6;
+      particles[i].style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
       particles[i].style.opacity = String(0.25 + (1 - ease) * 0.75);
     }
     return t >= 1;
   });
 
-  // Stage 2: fade particles out, show card
-  for (const p of particles) p.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 420, fill: "forwards" });
+  for (const particle of particles) {
+    particle.animate([{ opacity: 1 }, { opacity: 0 }], {
+      duration: 420,
+      fill: "forwards",
+    });
+  }
   await wait(240);
 
   okCard.animate(
@@ -195,12 +191,14 @@ async function playConfirm(orderId) {
   okCard.style.opacity = "1";
   okCard.style.transform = "translateY(0)";
 
-  // Stroke check
-  checkPath.animate([{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }], { duration: 520, fill: "forwards" });
+  checkPath.animate([{ strokeDashoffset: 1 }, { strokeDashoffset: 0 }], {
+    duration: 520,
+    fill: "forwards",
+  });
 }
 
 function wait(ms) {
-  return new Promise((r) => setTimeout(r, ms));
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 function animateFrame(fn) {
@@ -243,6 +241,32 @@ function normalizePhone(input) {
   return out.replace(/[^\d]/g, "");
 }
 
+async function copyText(value) {
+  try {
+    if (navigator.clipboard && typeof navigator.clipboard.writeText === "function") {
+      await navigator.clipboard.writeText(value);
+      return true;
+    }
+  } catch {}
+
+  try {
+    const area = document.createElement("textarea");
+    area.value = value;
+    area.setAttribute("readonly", "");
+    area.style.position = "fixed";
+    area.style.opacity = "0";
+    document.body.appendChild(area);
+    area.focus();
+    area.select();
+    area.setSelectionRange(0, value.length);
+    const ok = document.execCommand("copy");
+    document.body.removeChild(area);
+    return ok;
+  } catch {
+    return false;
+  }
+}
+
 function escapeHtml(s) {
   return String(s)
     .replaceAll("&", "&amp;")
@@ -254,3 +278,4 @@ function escapeHtml(s) {
 function escapeAttr(s) {
   return escapeHtml(s).replaceAll("'", "&#39;");
 }
+

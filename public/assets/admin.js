@@ -234,6 +234,7 @@ function renderOrders() {
         <div class="mini">${state.orders.length} طلب</div>
       </div>
       <div style="display:flex; gap:10px; flex-wrap:wrap">
+        <input id="orderSearch" placeholder="ابحث برقم الطلب أو اسم العميل..." style="width:280px" />
         <button id="refresh" class="btn" type="button">تحديث</button>
         <button id="export" class="btn" type="button">تصدير JSON</button>
       </div>
@@ -255,33 +256,49 @@ function renderOrders() {
   });
 
   const grid = qs("#oGrid");
-  grid.innerHTML = "";
-  if (state.orders.length === 0) {
-    grid.innerHTML = `<div class="muted-box" style="grid-column:1/-1">لا توجد طلبات بعد.</div>`;
-    return;
-  }
+  const search = qs("#orderSearch");
+  search.addEventListener("input", render);
+  render();
 
-  for (const o of state.orders) {
-    const el = document.createElement("article");
-    el.className = "card";
-    el.style.cursor = "default";
-    el.innerHTML = `
-      <div class="card-body">
-        <div class="card-title">#${escapeHtml(o.id)}</div>
-        <div class="mini">${escapeHtml(o.customer?.name || "")} • ${escapeHtml(o.customer?.governorate || "")}</div>
-        <div class="mini">الحالة: ${escapeHtml(o.status)} • ${escapeHtml(new Date(o.createdAt).toLocaleString("ar-EG"))}</div>
-        <div class="price-row" style="margin-top:10px">
-          <div class="price sale">${fmtEGP(o.total || 0)}</div>
-        </div>
-        <button class="btn" data-act="view" type="button" style="margin-top:12px">عرض التفاصيل</button>
-      </div>
-    `;
-    el.addEventListener("click", (e) => {
-      const b = e.target.closest("button");
-      if (!b) return;
-      openOrder(o);
+  function render() {
+    const q = search.value.trim().toLowerCase();
+    grid.innerHTML = "";
+    const list = state.orders.filter((o) => {
+      if (!q) return true;
+      return (
+        String(o.id || "").toLowerCase().includes(q) ||
+        String(o.customer?.name || "").toLowerCase().includes(q) ||
+        String(o.customer?.phone || "").toLowerCase().includes(q)
+      );
     });
-    grid.appendChild(el);
+
+    if (list.length === 0) {
+      grid.innerHTML = `<div class="muted-box" style="grid-column:1/-1">لا توجد طلبات مطابقة.</div>`;
+      return;
+    }
+
+    for (const o of list) {
+      const el = document.createElement("article");
+      el.className = "card";
+      el.style.cursor = "default";
+      el.innerHTML = `
+        <div class="card-body">
+          <div class="card-title">#${escapeHtml(o.id)}</div>
+          <div class="mini">${escapeHtml(o.customer?.name || "")} • ${escapeHtml(o.customer?.governorate || "")}</div>
+          <div class="mini">الحالة: ${escapeHtml(o.status)} • ${escapeHtml(new Date(o.createdAt).toLocaleString("ar-EG"))}</div>
+          <div class="price-row" style="margin-top:10px">
+            <div class="price sale">${fmtEGP(o.total || 0)}</div>
+          </div>
+          <button class="btn" data-act="view" type="button" style="margin-top:12px">عرض التفاصيل</button>
+        </div>
+      `;
+      el.addEventListener("click", (e) => {
+        const b = e.target.closest("button");
+        if (!b) return;
+        openOrder(o);
+      });
+      grid.appendChild(el);
+    }
   }
 }
 
@@ -335,19 +352,19 @@ function openOrder(order) {
   openModal(
     `تفاصيل الطلب #${order.id}`,
     `
-      <div class="product-layout" style="grid-template-columns:1fr 1fr">
-        <div class="panel">
+      <div class="product-layout" style="grid-template-columns:1fr 1fr; gap:14px">
+        <div class="panel" style="background: linear-gradient(180deg, rgba(9,21,36,0.9), rgba(6,13,23,0.86))">
           <div style="font-weight:900; margin-bottom:10px">بيانات العميل</div>
-          <div class="mini">الاسم: ${escapeHtml(order.customer?.name || "")}</div>
-          <div class="mini">الهاتف: ${escapeHtml(order.customer?.phone || "")}</div>
-          ${order.customer?.phone2 ? `<div class="mini">احتياطي: ${escapeHtml(order.customer.phone2)}</div>` : ""}
-          <div class="mini">المحافظة: ${escapeHtml(order.customer?.governorate || "")}</div>
-          <div class="mini">المنطقة: ${escapeHtml(order.customer?.area || "")}</div>
-          <div class="mini">المبنى: ${escapeHtml(order.customer?.building || "")}</div>
-          ${order.customer?.address ? `<div class="mini">تفاصيل: ${escapeHtml(order.customer.address)}</div>` : ""}
+          <div class="mini" style="padding:6px 0">الاسم: ${escapeHtml(order.customer?.name || "")}</div>
+          <div class="mini" style="padding:6px 0">الهاتف: ${escapeHtml(order.customer?.phone || "")}</div>
+          ${order.customer?.phone2 ? `<div class="mini" style="padding:6px 0">احتياطي: ${escapeHtml(order.customer.phone2)}</div>` : ""}
+          <div class="mini" style="padding:6px 0">المحافظة: ${escapeHtml(order.customer?.governorate || "")}</div>
+          <div class="mini" style="padding:6px 0">المنطقة: ${escapeHtml(order.customer?.area || "")}</div>
+          <div class="mini" style="padding:6px 0">المبنى: ${escapeHtml(order.customer?.building || "")}</div>
+          ${order.customer?.address ? `<div class="mini" style="padding:6px 0">تفاصيل: ${escapeHtml(order.customer.address)}</div>` : ""}
           <button id="copyAddr" class="btn" type="button" style="margin-top:12px">نسخ العنوان</button>
         </div>
-        <div class="panel">
+        <div class="panel" style="background: linear-gradient(180deg, rgba(9,21,36,0.9), rgba(6,13,23,0.86))">
           <div style="font-weight:900; margin-bottom:10px">تفاصيل الطلب</div>
           <div class="mini">الإجمالي: <span style="color: var(--gold); font-weight:900">${fmtEGP(order.total || 0)}</span></div>
           <div class="mini">الوقت: ${escapeHtml(new Date(order.createdAt).toLocaleString("ar-EG"))}</div>
@@ -368,6 +385,7 @@ function openOrder(order) {
                 .join("")}
             </select>
             <button id="updateStatus" class="btn" type="button" style="width:auto; margin:0">تحديث الحالة</button>
+            <button id="deleteOrder" class="btn danger" type="button" style="width:auto; margin:0">إلغاء/حذف الطلب</button>
           </div>
         </div>
       </div>
@@ -377,7 +395,7 @@ function openOrder(order) {
   qs("#copyAddr").addEventListener("click", async () => {
     const c = order.customer || {};
     const txt = `الاسم: ${c.name}\nالهاتف: ${c.phone}${c.phone2 ? " / " + c.phone2 : ""}\n${c.governorate} - ${c.area} - ${c.building}\n${c.address || ""}`.trim();
-    await navigator.clipboard.writeText(txt);
+    await safeCopy(txt);
     alert("تم النسخ");
   });
 
@@ -387,6 +405,20 @@ function openOrder(order) {
       await api(`/api/admin/orders/${encodeURIComponent(order.id)}/status`, {
         method: "PUT",
         body: JSON.stringify({ status }),
+      });
+      closeModal();
+      await loadOrders();
+      renderOrders();
+    } catch (e) {
+      alert(e.message || "حصل خطأ");
+    }
+  });
+
+  qs("#deleteOrder").addEventListener("click", async () => {
+    if (!confirm("هل تريد حذف هذا الطلب نهائيًا؟")) return;
+    try {
+      await api(`/api/admin/orders/${encodeURIComponent(order.id)}`, {
+        method: "DELETE",
       });
       closeModal();
       await loadOrders();
@@ -602,6 +634,30 @@ function markBad(id, msg) {
 
 function clearBad() {
   for (const el of document.querySelectorAll(".field.bad")) el.classList.remove("bad");
+}
+
+async function safeCopy(value) {
+  try {
+    if (navigator.clipboard && typeof navigator.clipboard.writeText === "function") {
+      await navigator.clipboard.writeText(value);
+      return true;
+    }
+  } catch {}
+  try {
+    const area = document.createElement("textarea");
+    area.value = value;
+    area.setAttribute("readonly", "");
+    area.style.position = "fixed";
+    area.style.opacity = "0";
+    document.body.appendChild(area);
+    area.focus();
+    area.select();
+    const ok = document.execCommand("copy");
+    document.body.removeChild(area);
+    return ok;
+  } catch {
+    return false;
+  }
 }
 
 function escapeHtml(s) {
